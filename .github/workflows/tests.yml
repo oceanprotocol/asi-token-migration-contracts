@@ -26,11 +26,12 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
-      - run: cd token
       - run: npm ci
+        working-directory: ./token
       - run: npm install -g solhint
+        working-directory: ./token
       - run: solhint contracts/**/*.sol
-
+        working-directory: ./token
   tests_token:
     runs-on: ubuntu-latest
     steps:
@@ -52,24 +53,24 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
-      - run: cd token
       - run: npm ci
+        working-directory: ./token
       - name: Run Hardhat
+        working-directory: ./token
         run: |
           npx hardhat node &
       - name: Compile contracts
+        working-directory: ./token
         run: |
           npx hardhat compile --force
       - name: Run tests
+        working-directory: ./token
         run: npm run test
       - name: Delete dbg files
+        working-directory: ./token
         run: find ./artifacts/* -name "*.dbg.json" -type f -delete
-      - uses: actions/upload-artifact@v2
-        with:
-          name: coverage
-          path: coverage/
 
-  slither-token:
+  slither:
     name: Slither Analysis
     runs-on: ubuntu-latest
     permissions:
@@ -78,7 +79,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - run: cd token
       - name: Run Slither
         uses: crytic/slither-action@v0.1.0
         continue-on-error: true
@@ -88,7 +88,7 @@ jobs:
           sarif: results.sarif
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v1
+        uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ steps.slither.outputs.sarif }}
 
@@ -107,10 +107,12 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
-      - run: cd migration
       - run: npm ci
+        working-directory: ./migration
       - run: npm install -g solhint
+        working-directory: ./migration
       - run: solhint contracts/**/*.sol
+        working-directory: ./migration
 
   tests_migration:
     runs-on: ubuntu-latest
@@ -133,36 +135,15 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
-      - run: cd migration
       - run: npm ci
+        working-directory: ./migration
       - name: Run Hardhat
+        working-directory: ./migration
         run: |
           npx hardhat node &
       - name: Compile contracts
+        working-directory: ./migration
         run: |
           npx hardhat compile --force
       - name: Run tests
         run: npm run test
-
-  slither-migration:
-    name: Slither Analysis
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - run: cd migration
-      - name: Run Slither
-        uses: crytic/slither-action@v0.1.0
-        continue-on-error: true
-        id: slither
-        with:
-          node-version: 18
-          sarif: results.sarif
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: ${{ steps.slither.outputs.sarif }}
