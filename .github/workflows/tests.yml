@@ -63,7 +63,7 @@ jobs:
         run: find ./artifacts/* -name "*.dbg.json" -type f -delete
 
   slither_token:
-    name: Slither Analysis
+    name: Slither Token Analysis
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -135,7 +135,7 @@ jobs:
         run: npm run test 
 
   slither_migration:
-            name: Slither Analysis
+            name: Slither Migration Analysis
             runs-on: ubuntu-latest
             permissions:
               contents: read
