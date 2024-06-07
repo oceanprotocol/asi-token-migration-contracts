@@ -26,6 +26,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
+      - run: ls -lh
       - run: npm ci
         working-directory: ./token
       - run: npm install -g solhint
