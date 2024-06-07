@@ -38,12 +38,6 @@ jobs:
           working-directory: ./token
     runs-on: ubuntu-latest
     steps:
-      - name: "step-log-ref"
-        run: |
-          echo "[C] github.ref: ${{github.ref}}"
-      - name: "step-log-event_name "
-        run: |
-          echo "[C] github.event_name : ${{github.event_name }}"
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
@@ -118,12 +112,6 @@ jobs:
         run:
           working-directory: ./migration
     steps:
-      - name: "step-log-ref"
-        run: |
-          echo "[C] github.ref: ${{github.ref}}"
-      - name: "step-log-event_name "
-        run: |
-          echo "[C] github.event_name : ${{github.event_name }}"
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
