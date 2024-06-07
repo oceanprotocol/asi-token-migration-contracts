@@ -1,0 +1,182 @@
+name: 'CI'
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  lint_token:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./token
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
+      - run: npm ci
+      - run: npm install -g solhint
+      - run: solhint contracts/**/*.sol
+
+  tests_token:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./token
+    steps:
+      - name: "step-log-ref"
+        run: |
+          echo "[C] github.ref: ${{github.ref}}"
+      - name: "step-log-event_name "
+        run: |
+          echo "[C] github.event_name : ${{github.event_name }}"
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
+      - run: npm ci
+      - name: Run Hardhat
+        run: |
+          npx hardhat node &
+      - name: Compile contracts
+        run: |
+          npx hardhat compile --force
+      - name: Run tests
+        run: npm run test
+      - name: Delete dbg files
+        run: find ./artifacts/* -name "*.dbg.json" -type f -delete
+      - uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage/
+
+  slither-token:
+    name: Slither Analysis
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./token
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.1.0
+        continue-on-error: true
+        id: slither
+        with:
+          node-version: 18
+          sarif: results.sarif
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}
+
+  lint_migration:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./migration
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
+      - run: npm ci
+      - run: npm install -g solhint
+      - run: solhint contracts/**/*.sol
+
+  tests_migration:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./migration
+    steps:
+      - name: "step-log-ref"
+        run: |
+          echo "[C] github.ref: ${{github.ref}}"
+      - name: "step-log-event_name "
+        run: |
+          echo "[C] github.event_name : ${{github.event_name }}"
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
+      - run: npm ci
+      - name: Run Hardhat
+        run: |
+          npx hardhat node &
+      - name: Compile contracts
+        run: |
+          npx hardhat compile --force
+      - name: Run tests
+        run: npm run test
+
+  slither-migration:
+    name: Slither Analysis
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./migration
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.1.0
+        continue-on-error: true
+        id: slither
+        with:
+          node-version: 18
+          sarif: results.sarif
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}
