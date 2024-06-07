@@ -26,8 +26,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
-      - run: ls -lh
-      - run: npm ci
+      - run: npm c
         working-directory: ./token
       - run: npm install -g solhint
         working-directory: ./token
@@ -54,7 +53,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
-      - run: npm ci
+      - run: npm i
         working-directory: ./token
       - name: Run Hardhat
         working-directory: ./token
@@ -108,7 +107,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
-      - run: npm ci
+      - run: npm i
         working-directory: ./migration
       - run: npm install -g solhint
         working-directory: ./migration
@@ -136,7 +135,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
-      - run: npm ci
+      - run: npm i
         working-directory: ./migration
       - name: Run Hardhat
         working-directory: ./migration
