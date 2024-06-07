@@ -62,7 +62,7 @@ jobs:
       - name: Delete dbg files
         run: find ./artifacts/* -name "*.dbg.json" -type f -delete
 
-  slither:
+  slither_token:
     name: Slither Analysis
     runs-on: ubuntu-latest
     permissions:
@@ -72,13 +72,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Run Slither
-        uses: crytic/slither-action@v0.1.0
+        uses: crytic/slither-action@v0.4.0
         continue-on-error: true
         id: slither
         with:
           node-version: 18
           sarif: results.sarif
-
+          target: ./token
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
@@ -132,4 +132,27 @@ jobs:
         run: |
           npx hardhat compile --force
       - name: Run tests
-        run: npm run test
+        run: npm run test 
+
+  slither_migration:
+            name: Slither Analysis
+            runs-on: ubuntu-latest
+            permissions:
+              contents: read
+              security-events: write
+            steps:
+              - name: Checkout repository
+                uses: actions/checkout@v2
+              - name: Run Slither
+                uses: crytic/slither-action@v0.4.0
+                continue-on-error: true
+                id: slither
+                with:
+                  node-version: 18
+                  sarif: results.sarif
+                  target: ./migration
+              - name: Upload SARIF file
+                uses: github/codeql-action/upload-sarif@v2
+                with:
+                  sarif_file: ${{ steps.slither.outputs.sarif }}
+        
