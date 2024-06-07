@@ -12,6 +12,9 @@ on:
 
 jobs:
   lint_token:
+    defaults:
+        run:
+          working-directory: ./token
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,12 +30,12 @@ jobs:
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
       - run: npm c
-        working-directory: ./token
       - run: npm install -g solhint
-        working-directory: ./token
       - run: solhint contracts/**/*.sol
-        working-directory: ./token
   tests_token:
+    defaults:
+        run:
+          working-directory: ./token
     runs-on: ubuntu-latest
     steps:
       - name: "step-log-ref"
@@ -54,20 +57,15 @@ jobs:
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
       - run: npm i
-        working-directory: ./token
       - name: Run Hardhat
-        working-directory: ./token
         run: |
           npx hardhat node &
       - name: Compile contracts
-        working-directory: ./token
         run: |
           npx hardhat compile --force
       - name: Run tests
-        working-directory: ./token
         run: npm run test
       - name: Delete dbg files
-        working-directory: ./token
         run: find ./artifacts/* -name "*.dbg.json" -type f -delete
 
   slither:
@@ -94,6 +92,9 @@ jobs:
 
   lint_migration:
     runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./migration
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -108,14 +109,14 @@ jobs:
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
       - run: npm i
-        working-directory: ./migration
       - run: npm install -g solhint
-        working-directory: ./migration
       - run: solhint contracts/**/*.sol
-        working-directory: ./migration
 
   tests_migration:
     runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./migration
     steps:
       - name: "step-log-ref"
         run: |
@@ -136,13 +137,10 @@ jobs:
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
       - run: npm i
-        working-directory: ./migration
       - name: Run Hardhat
-        working-directory: ./migration
         run: |
           npx hardhat node &
       - name: Compile contracts
-        working-directory: ./migration
         run: |
           npx hardhat compile --force
       - name: Run tests
