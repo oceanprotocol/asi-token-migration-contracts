@@ -13,9 +13,6 @@ on:
 jobs:
   lint_token:
     runs-on: ubuntu-latest
-    defaults:
-        run:
-          working-directory: ./token
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -29,15 +26,13 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
+      - run: cd token
       - run: npm ci
       - run: npm install -g solhint
       - run: solhint contracts/**/*.sol
 
   tests_token:
     runs-on: ubuntu-latest
-    defaults:
-        run:
-          working-directory: ./token
     steps:
       - name: "step-log-ref"
         run: |
@@ -57,6 +52,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
+      - run: cd token
       - run: npm ci
       - name: Run Hardhat
         run: |
@@ -76,16 +72,13 @@ jobs:
   slither-token:
     name: Slither Analysis
     runs-on: ubuntu-latest
-    defaults:
-        run:
-          working-directory: ./token
     permissions:
       contents: read
       security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      - run: cd token
       - name: Run Slither
         uses: crytic/slither-action@v0.1.0
         continue-on-error: true
@@ -101,9 +94,6 @@ jobs:
 
   lint_migration:
     runs-on: ubuntu-latest
-    defaults:
-        run:
-          working-directory: ./migration
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -117,15 +107,13 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-lint-${{ env.cache-name }}-
+      - run: cd migration
       - run: npm ci
       - run: npm install -g solhint
       - run: solhint contracts/**/*.sol
 
   tests_migration:
     runs-on: ubuntu-latest
-    defaults:
-        run:
-          working-directory: ./migration
     steps:
       - name: "step-log-ref"
         run: |
@@ -145,6 +133,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-test-token-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-test-token-${{ env.cache-name }}-
+      - run: cd migration
       - run: npm ci
       - name: Run Hardhat
         run: |
@@ -158,16 +147,13 @@ jobs:
   slither-migration:
     name: Slither Analysis
     runs-on: ubuntu-latest
-    defaults:
-        run:
-          working-directory: ./migration
     permissions:
       contents: read
       security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      - run: cd migration
       - name: Run Slither
         uses: crytic/slither-action@v0.1.0
         continue-on-error: true
